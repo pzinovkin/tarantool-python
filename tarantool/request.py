@@ -303,10 +303,10 @@ class RequestCall(Request):
     def __init__(self, proc_name, args, return_tuple):    # pylint: disable=W0231
         flags = 1 if return_tuple else 0
         assert isinstance(args, (list, tuple))
-
+        # args explicitly casted to string due tarantool bug
         request_body = \
             struct_L.pack(flags) + \
             self.pack_field(proc_name) +\
-            self.pack_tuple(args)
+            self.pack_tuple(map(str, args))
 
         self._bytes = self.header(len(request_body)) + request_body

@@ -8,9 +8,9 @@ from tarantool.const import *
 from tarantool.error import *
 
 
-
 if sys.version_info < (2, 6):
     bytes = str    # pylint: disable=W0622
+
 
 class field(bytes):
     '''\
@@ -105,10 +105,11 @@ class Response(list):
         self.field_types = field_types
 
         # Unpack header
-        self._request_type, self._body_length, self._request_id  = struct_LLL.unpack(header)
+        (self._request_type, self._body_length,
+            self._request_id) = struct.unpack('<LLL', header)
+
         if body:
             self._unpack_body(body)
-
 
     @staticmethod
     def _unpack_int_base128(varint, offset):
@@ -127,7 +128,6 @@ class Response(list):
                         offset += 1
                         res = ((res - 0x80) << 7) + ord(varint[offset])
         return res, offset + 1
-
 
     def _unpack_tuple(self, buff):
         '''\
@@ -169,8 +169,8 @@ class Response(list):
         :type byff: ctypes buffer
         '''
 
-        # Unpack <return_code> and <count> (how many records affected or selected)
-        self._return_code, self._rowcount = struct_LL.unpack_from(buff, offset=0)
+        # Unpack <return_code>
+        self._return_code = struct.unpack_from('<L', buff, offset=0)[0]
 
         # Separate return_code and completion_code
         self._completion_status = self._return_code & 0x00ff
@@ -178,7 +178,8 @@ class Response(list):
 
         # In case of an error unpack the body as an error message
         if self._return_code != 0:
-            self._return_message = unicode(buff.value, "utf8", "replace")
+            print buff.value
+            self._return_message = unicode(buff[4:-1], "utf8", "replace")
             if self._completion_status == 2:
                 raise DatabaseError(self._return_code, self._return_message)
 
@@ -186,12 +187,15 @@ class Response(list):
         if self._body_length == 8:
             return
 
+        # Unpack <count> (how many records affected or selected)
+        self._rowcount = struct.unpack_from('<L', buff, offset=4)[0]
+
         # Parse response tuples (<fq_tuple>)
         if self._rowcount > 0:
             offset = 8    # The first 4 bytes in the response body is the <count> we have already read
             while offset < self._body_length:
                 '''
-                # In resonse tuples have the form <size><tuple> (<fq_tuple> ::= <size><tuple>).
+                # In response tuples have the form <size><tuple> (<fq_tuple> ::= <size><tuple>).
                 # Attribute <size> takes into account only size of tuple's <field> payload,
                 # but does not include 4-byte of <cardinality> field.
                 # Therefore the actual size of the <tuple> is greater to 4 bytes.

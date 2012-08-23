@@ -1,13 +1,19 @@
 # -*- coding: utf-8 -*-
-from distutils.core import setup
+import re
 import os.path
 
+from setuptools import setup, find_packages
 
-# Read package version without importing it
-for line in open(os.path.join(os.path.dirname(__file__), "src", "tarantool", "__init__.py")):
-    if line.startswith("__version__"):
-        exec line
-        break
+
+def find_version(*path):
+    version_file = open(os.path.join(os.path.dirname(__file__), *path)).read()
+    version_match = re.search(r'^__version__ = [\'"]([^\'"]*)[\'"]',
+                              version_file, re.M)
+
+    if version_match:
+        return version_match.group(1)
+    raise RuntimeError('Unable to find version.')
+
 
 # Extra commands for documentation management
 cmdclass = {}
@@ -18,7 +24,7 @@ command_options = {}
 # generates files into build/sphinx/html
 try:
     from sphinx.setup_command import BuildDoc
-    cmdclass["build_sphinx"] = BuildDoc
+    cmdclass['build_sphinx'] = BuildDoc
 except ImportError:
     pass
 
@@ -28,9 +34,12 @@ except ImportError:
 # updates documentation at http://packages.python.org/tarantool/
 try:
     from sphinx_pypi_upload import UploadDoc
-    cmdclass["upload_sphinx"] = UploadDoc
-    command_options["upload_sphinx"] = {
-            'upload_dir': ('setup.py', os.path.join(os.path.dirname(__file__), "build", "sphinx", "html"))
+    cmdclass['upload_sphinx'] = UploadDoc
+    command_options['upload_sphinx'] = {
+        'upload_dir': (
+            'setup.py',
+            os.path.join(os.path.dirname(__file__), 'build', 'sphinx', 'html')
+        )
     }
 except ImportError:
     pass
@@ -39,28 +48,27 @@ except ImportError:
 # Test runner
 # python setup.py test
 from tests.setup_command import test
-cmdclass["test"] = test
+cmdclass['test'] = test
 
 
 setup(
-    name = "tarantool",
-    packages = ["tarantool"],
-    package_dir = {"tarantool": os.path.join("src", "tarantool")},
-    version = __version__,
-    platforms = ["all"],
-    author = "Konstantin Cherkasoff",
-    author_email = "k.cherkasoff@gmail.com",
-    url = "https://github.com/coxx/tarantool-python",
-    license = "BSD",
-    description = "Python client library for Tarantool Database",
-    long_description = open("README.rst").read(),
-    classifiers = [
-        "Intended Audience :: Developers",
-        "License :: OSI Approved :: BSD License",
-        "Operating System :: OS Independent",
-        "Programming Language :: Python",
-        "Topic :: Database :: Front-Ends"
+    name='tarantool',
+    packages=find_packages(exclude=['tests']),
+    version=find_version('tarantool', '__init__.py'),
+    platforms=['all'],
+    author='Konstantin Cherkasoff',
+    author_email='k.cherkasoff@gmail.com',
+    url='https://github.com/coxx/tarantool-python',
+    license='BSD',
+    description='Python client library for Tarantool Database',
+    long_description=open('README.rst').read(),
+    classifiers=[
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: BSD License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python',
+        'Topic :: Database :: Front-Ends'
     ],
-    cmdclass = cmdclass,
-    command_options = command_options
+    cmdclass=cmdclass,
+    command_options=command_options
 )

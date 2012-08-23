@@ -3,7 +3,6 @@
 '''
 This module provides low-level API for Tarantool
 '''
-
 import ctypes
 import socket
 import time
@@ -92,28 +91,28 @@ class Connection(object):
         :rtype: tuple of two byte arrays
         '''
         # Read response header
-        buff_header = ctypes.create_string_buffer(12)
-        nbytes = self._socket.recv_into(buff_header, 12)
+        header = self._socket.recv(12)
 
         # Immediately raises an exception if the data cannot be read
-        if nbytes != 12:
-            raise socket.error(socket.errno.ECONNABORTED, "Software caused connection abort")
+        if len(header) != 12:
+            raise socket.error(socket.errno.ECONNABORTED,
+                               'Software caused connection abort')
 
-        # Extract body lenght from header
-        body_length = struct_L.unpack(buff_header[4:8])[0]
+        # Extract body length from header
+        length = struct.unpack('<L', header[4:8])[0]
 
         # Unpack body if it is not empty (i.e. not PING)
-        if body_length != 0:
-            buff_body = ctypes.create_string_buffer(body_length)
-            nbytes = self._socket.recv_into(buff_body)
-            # Immediately raises an exception if the data cannot be read
-            if nbytes != body_length:
-                raise socket.error(socket.errno.ECONNABORTED, "Software caused connection abort")
-        else:
-            buff_body = b""
-
-        return buff_header, buff_body
-
+        buff_body = ctypes.create_string_buffer(length)
+        chunks = []
+        while length:
+            chunk = self._socket.recv(length)
+            if chunk == b'':
+                raise socket.error(socket.errno.ECONNABORTED,
+                                   'Software caused connection abort')
+            length -= len(chunk)
+            chunks.append(chunk)
+        buff_body.value = b''.join(chunks)
+        return header, buff_body
 
 
     def _send_request_wo_reconnect(self, request, field_types=None):
