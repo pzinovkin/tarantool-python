@@ -1,6 +1,10 @@
 Python client library for Tarantool Database
 ============================================
 
+.. image:: https://secure.travis-ci.org/pzinovkin/tarantool-python.png?branch=master
+   :target: http://travis-ci.org/pzinovkin/tarantool-python
+
+
 This package is a pure-python client library for `Tarantool Database`_.
 
 `Documentation`_  |  `Downloads`_  |  `PyPI`_  |  `GitHub`_  | `Issue tracker`_
