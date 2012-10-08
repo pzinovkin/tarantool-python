@@ -50,10 +50,9 @@ except ImportError:
 from tests.setup_command import test
 cmdclass['test'] = test
 
-
 setup(
     name='tarantool',
-    packages=find_packages(exclude=['tests']),
+    packages=find_packages(exclude=['tests', 'tests.tarantool']),
     version=find_version('tarantool', '__init__.py'),
     platforms=['all'],
     author='Konstantin Cherkasoff',
