@@ -27,7 +27,7 @@ class field(bytes):
                 cls, value.encode('utf-8', 'replace')
             )
 
-        if sys.version_info[0] < 3 and isinstance(value, str):
+        if sys.version_info.major < 3 and isinstance(value, str):
             return super(field, cls).__new__(cls, value)
 
         if isinstance(value, (bytearray, bytes)):
@@ -58,7 +58,7 @@ class field(bytes):
             raise ValueError('Unable to cast field to int: length must be '
                              '4 or 8 bytes, field length is %d' % len(self))
 
-    if sys.version_info[0] > 2:
+    if sys.version_info.major > 2:
         def __str__(self):
             """Cast field to str"""
             return self.decode('utf-8', 'replace')
