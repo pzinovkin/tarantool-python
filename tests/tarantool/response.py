@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=C0301,W0105,W0401,W0614
-'''
+"""
 Tests for tarantool.response module
-'''
+"""
 import binascii
 import sys
 import unittest
@@ -16,14 +15,14 @@ import tarantool.response
 
 
 class field(unittest.TestCase):
-    '''
+    """
     Tests for response.field class
-    '''
+    """
 
     def test__init_from_unicode(self):
-        '''
+        """
         Test field instantiation from str or unicode value
-        '''
+        """
         # Word "Test" in cyrillic utf-8 encoded
         if py3:
             value = str(b"\xd0\xa2\xd0\xb5\xd1\x81\xd1\x82", "utf-8")
@@ -38,9 +37,9 @@ class field(unittest.TestCase):
 
 
     def test__init_from_bytes(self):
-        '''
+        """
         Test field instantiation from raw bytes value
-        '''
+        """
         # Word "Test" in cyrillic utf-8 encoded
         value = b"\xd0\xa2\xd0\xb5\xd1\x81\xd1\x82"
 
@@ -52,9 +51,9 @@ class field(unittest.TestCase):
 
 
     def test__init_from_int(self):
-        '''
+        """
         Test field instantiation from integer value
-        '''
+        """
         self.assertEqual(
             tarantool.response.field(0),
             b"\x00\x00\x00\x00",
@@ -109,9 +108,9 @@ class field(unittest.TestCase):
 
 
     def test__cast_to_int(self):
-        '''
+        """
         Test type casting from field to int
-        '''
+        """
         for i in (0, 0x11, 0x1122, 0x112233, 0xffffffff, 0xffffffffffffffff):
             f = tarantool.response.field(i)
             self.assertEqual(
@@ -127,9 +126,9 @@ class field(unittest.TestCase):
 
 
     def test__cast_to_str(self):
-        '''
+        """
         Test type casting from field to str or unicode
-        '''
+        """
         # Word "Test" in cyrillic utf-8 encoded
         if py3:
             self.assertEqual(
@@ -145,14 +144,14 @@ class field(unittest.TestCase):
 
 
 class Response(unittest.TestCase):
-    '''
+    """
     Tests for response.Response
-    '''
+    """
 
     def test__init_single(self):
-        '''
+        """
         Test Response instance creation: unpack single record
-        '''
+        """
         header = from_hex(
             "0d000000" # request_type = 0x0d ("insert")
             "1b000000" # body_length = 27
@@ -174,9 +173,9 @@ class Response(unittest.TestCase):
         )
 
     def test__init_multiple(self):
-        '''
+        """
         Test Response instance creation: unpack multiple records
-        '''
+        """
         header = from_hex(
             "11000000" # request_type = 0x11 ("select")
             "51000000" # body_length = 32

@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=C0301,W0105,W0401,W0614
-'''
+"""
 Tests for tarantool.request module
-'''
+"""
 
 import binascii
 import unittest
@@ -14,9 +13,9 @@ import tarantool.request
 class RequestInsert(unittest.TestCase):
 
     def test__cast_to_bytes(self):
-        '''
+        """
         Test binary INSERT request representation
-        '''
+        """
         self.assertEqual(
             bytes(tarantool.request.RequestInsert(1, (1, 2000, 30000), False)),
             binascii.unhexlify("0d0000001b00000000000000010000000000000003000000040100000004d00700000430750000")
@@ -31,9 +30,9 @@ class RequestInsert(unittest.TestCase):
 class RequestDelete(unittest.TestCase):
 
     def test__cast_to_bytes(self):
-        '''
+        """
         Test binary DELETE request representation
-        '''
+        """
         self.assertEqual(
             bytes(tarantool.request.RequestDelete(1, 1, False)),
             binascii.unhexlify("1500000011000000000000000100000000000000010000000401000000")
@@ -52,9 +51,9 @@ class RequestDelete(unittest.TestCase):
 class RequestSelect(unittest.TestCase):
 
     def test__cast_to_bytes(self):
-        '''
+        """
         Test binary SELECT request representation
-        '''
+        """
         # select * from t1 where k0 = 1
         self.assertEqual(
             bytes(tarantool.request.RequestSelect(1, 0, [(1,)], 0, 0xffff)),
@@ -94,9 +93,9 @@ class RequestSelect(unittest.TestCase):
 class RequestUpdate(unittest.TestCase):
 
     def test__cast_to_bytes(self):
-        '''
+        """
         Test binary UPDATE request representation
-        '''
+        """
 
         # ------------------------------------------------------------
         # Update operation "ASSIGN" ('='), op_code = 0
