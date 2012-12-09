@@ -4,6 +4,15 @@ import os.path
 
 from setuptools import setup, find_packages
 
+# Hack to prevent stupid "TypeError: 'NoneType' object is not callable" error
+# in multiprocessing/util.py _exit_function when running `python
+# setup.py test` (see
+# http://www.eby-sarna.com/pipermail/peak/2010-May/003357.html)
+try:
+    import multiprocessing  # noqa
+except ImportError:
+    pass
+
 
 def find_version(*path):
     version_file = open(os.path.join(os.path.dirname(__file__), *path)).read()
@@ -45,15 +54,17 @@ except ImportError:
     pass
 
 
-# Test runner
-# python setup.py test
-from tests.setup_command import test
-cmdclass['test'] = test
-
 setup(
     name='tarantool',
     packages=find_packages(exclude=['tests', 'tests.tarantool']),
     version=find_version('tarantool', '__init__.py'),
+    install_requires=[
+        'six==1.2.0',
+    ],
+    tests_require=[
+        'nose==1.2.1',
+    ],
+    test_suite='nose.collector',
     platforms=['all'],
     author='Konstantin Cherkasoff',
     author_email='k.cherkasoff@gmail.com',
