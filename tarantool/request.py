@@ -6,6 +6,8 @@ Request types definitions
 
 import struct
 
+from six.moves import xrange
+
 from tarantool.const import *
 
 
