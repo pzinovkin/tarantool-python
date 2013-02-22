@@ -234,14 +234,14 @@ class Connection(object):
         :param space_no: space id to delete a record
         :type space_no: int
         :param key: key that identifies a record
-        :type key: int or str
+        :type key: int or str or tuple
         :param return_tuple: indicates that it is required to return
         the deleted tuple back
         :type return_tuple: bool
 
         :rtype: `Response` instance
         """
-        assert isinstance(key, (int, basestring))
+        assert isinstance(key, (int, basestring, tuple))
 
         request = RequestDelete(space_no, key, return_tuple)
         return self._send_request(request, field_types=field_types)

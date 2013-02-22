@@ -43,7 +43,12 @@ class RequestDelete(unittest.TestCase):
             binascii.unhexlify("15000000100000000000000001000000000000000100000003414141")
         )
 
-        # Raises a TypeError exception because the primary key must be a scalar value (int or str)
+        self.assertEqual(
+          bytes(tarantool.request.RequestDelete(1, (1,2), False)),
+          binascii.unhexlify("15000000160000000000000001000000000000000200000004010000000402000000")
+        )
+
+        # Raises a TypeError exception because the primary key must be a scalar value (int or str ot tuple)
         with self.assertRaises(TypeError):
             tarantool.request.RequestDelete(1, [1,2], False)
 

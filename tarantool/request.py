@@ -197,9 +197,17 @@ class RequestDelete(Request):
         """
         flags = 1 if return_tuple else 0
 
-        request_body = \
-            struct_LL.pack(space_no, flags) + \
-            self.pack_tuple((key,))
+        if isinstance(key, (int, basestring)):
+            request_body = \
+                struct_LL.pack(space_no, flags) + \
+                self.pack_tuple((key,))
+        elif isinstance(key, tuple):
+            request_body = \
+                struct_LL.pack(space_no, flags) + \
+                self.pack_tuple(key)
+        else:
+            raise TypeError('Unsuppoted key type. Key must be instance '
+                            'of int or basestring or tuple.')
 
         self._bytes = self.header(len(request_body)) + request_body
 
