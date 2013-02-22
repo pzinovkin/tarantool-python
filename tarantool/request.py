@@ -193,21 +193,18 @@ class RequestDelete(Request):
     request_type = REQUEST_TYPE_DELETE
 
     def __init__(self, space_no, key, return_tuple):
-        """
-        """
         flags = 1 if return_tuple else 0
 
-        if isinstance(key, (int, basestring)):
-            request_body = \
-                struct_LL.pack(space_no, flags) + \
-                self.pack_tuple((key,))
-        elif isinstance(key, tuple):
-            request_body = \
-                struct_LL.pack(space_no, flags) + \
-                self.pack_tuple(key)
-        else:
+        if not isinstance(key, (int, basestring, tuple)):
             raise TypeError('Unsuppoted key type. Key must be instance '
                             'of int or basestring or tuple.')
+
+        if isinstance(key, (int, basestring)):
+            key = (key, )
+
+        request_body = \
+            struct_LL.pack(space_no, flags) + \
+            self.pack_tuple(key)
 
         self._bytes = self.header(len(request_body)) + request_body
 
@@ -261,11 +258,17 @@ class RequestUpdate(Request):
 
     def __init__(self, space_no, key, op_list, return_tuple):
         flags = 1 if return_tuple else 0
-        assert isinstance(key, (int, basestring))
+
+        if not isinstance(key, (int, basestring, tuple)):
+            raise TypeError('Unsuppoted key type. Key must be instance '
+                            'of int or basestring or tuple.')
+
+        if isinstance(key, (int, basestring)):
+            key = (key, )
 
         request_body = \
             struct_LL.pack(space_no, flags) + \
-            self.pack_tuple((key,)) + \
+            self.pack_tuple(key) + \
             struct_L.pack(len(op_list)) +\
             self.pack_operations(op_list)
 

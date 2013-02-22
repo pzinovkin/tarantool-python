@@ -257,7 +257,7 @@ class Connection(object):
         :param space_no: space id to update a record
         :type space_no: int
         :param key: key that identifies a record
-        :type key: int or str
+        :type key: int or str or tuple
         :param op_list: list of operations. Each operation is tuple
         of three values
         :type op_list: a list of the form
@@ -268,7 +268,7 @@ class Connection(object):
 
         :rtype: `Response` instance
         """
-        assert isinstance(key, (int, basestring))
+        assert isinstance(key, (int, basestring, tuple))
 
         request = RequestUpdate(space_no, key, op_list, return_tuple)
         return self._send_request(request, field_types=field_types)
