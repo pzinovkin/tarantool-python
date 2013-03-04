@@ -6,6 +6,7 @@ import struct
 import ctypes
 import socket
 import time
+from six import string_types
 
 from tarantool.response import Response
 from tarantool.request import (
@@ -241,7 +242,7 @@ class Connection(object):
 
         :rtype: `Response` instance
         """
-        assert isinstance(key, (int, basestring, tuple))
+        assert isinstance(key, (int, tuple) + string_types)
 
         request = RequestDelete(space_no, key, return_tuple)
         return self._send_request(request, field_types=field_types)
@@ -268,7 +269,7 @@ class Connection(object):
 
         :rtype: `Response` instance
         """
-        assert isinstance(key, (int, basestring, tuple))
+        assert isinstance(key, (int, tuple) + string_types)
 
         request = RequestUpdate(space_no, key, op_list, return_tuple)
         return self._send_request(request, field_types=field_types)
@@ -360,12 +361,13 @@ class Connection(object):
         index = kwargs.get("index", 0)
 
         # Perform smart type cheching (scalar/list of scalars/list of tuples)
-        if isinstance(values, (int, basestring)):  # scalar
+        if isinstance(values, (int, ) + string_types):  # scalar
             # This request is looking for one single record
             values = [(values, )]
         elif isinstance(values, (list, tuple, set, frozenset)):
             assert len(values) > 0
-            if isinstance(values[0], (int, basestring)):  # list of scalars
+            # list of scalars
+            if isinstance(values[0], (int, ) + string_types):
                 # This request is looking for several records
                 # using single-valued index
                 # Ex: select(space_no, index_no, [1, 2, 3])
