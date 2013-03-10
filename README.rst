@@ -32,9 +32,6 @@ To install development version of the package use pip::
     $ pip install git+https://github.com/mailru/tarantool-python
 
 
---------------------------------------------------------------------------------
-
-
 What is Tarantool?
 ------------------
 
@@ -43,24 +40,24 @@ What is Tarantool?
 production-ready and actively used at `Mail.Ru`_ - one of the leading
 Russian web content providers.
 
- * NoSQL database
- * In-memory storage
- * Data is protected by on-disk write-ahead-log and snapshots
- * Key-value data model: each record is a tuple of multiple values,
-   identified by primary key
- * Records can be accessed using secondary indexes
- * Secondary indexes can be non-unique and composite (include multiple fields)
- * Server-side stored procedures in Lua
- * Very fast binary client-server protocol
+* NoSQL database
+* In-memory storage
+* Data is protected by on-disk write-ahead-log and snapshots
+* Key-value data model: each record is a tuple of multiple values,
+  identified by primary key
+* Records can be accessed using secondary indexes
+* Secondary indexes can be non-unique and composite (include multiple fields)
+* Server-side stored procedures in Lua
+* Very fast binary client-server protocol
 
 
 See More
-^^^^^^^^
+--------
 
- * `Tarantool Homepage`_
- * `Tarantool at Github`_
- * `Tarantool User Guide`_
- * `Client-server Protocol Specification`_
+* `Tarantool Homepage`_
+* `Tarantool at Github`_
+* `Tarantool User Guide`_
+* `Client-server Protocol Specification`_
 
 
 .. _`Tarantool`:

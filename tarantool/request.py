@@ -5,8 +5,7 @@ Request types definitions
 
 import struct
 
-from six.moves import xrange
-from six import string_types
+from six import integer_types, PY3
 
 from tarantool.const import (
     struct_B, struct_BB, struct_BBB, struct_BBBB, struct_BBBBB, struct_BL,
@@ -14,6 +13,9 @@ from tarantool.const import (
     REQUEST_TYPE_SELECT, REQUEST_TYPE_INSERT, REQUEST_TYPE_DELETE,
     REQUEST_TYPE_UPDATE, REQUEST_TYPE_CALL, UPDATE_OPERATION_CODE
 )
+
+if PY3:
+    basestring = (str, bytes)
 
 
 class Request(object):
@@ -33,7 +35,7 @@ class Request(object):
     _int_base128 = tuple((
         struct_B.pack(val) if val < 128 else
         struct_BB.pack(val >> 7 & 0xff | 0x80, val & 0x7F)
-        for val in xrange(0x4000)
+        for val in range(0x4000)
     ))
 
     def __init__(self):
@@ -116,7 +118,7 @@ class Request(object):
         """
         value_len_packed = cls.pack_int_base128(len(value))
         return struct.pack('<%ds%ds' % (
-            len(value_len_packed), len(value)), value_len_packed,  value)
+            len(value_len_packed), len(value)), value_len_packed, value)
 
     @classmethod
     def pack_field(cls, value):
@@ -130,12 +132,12 @@ class Request(object):
         :return: packed value
         :rtype: bytes
         """
-        if isinstance(value, string_types):
+        if isinstance(value, basestring):
             return cls.pack_str(value)
-        elif isinstance(value, (int, long)):
+        elif isinstance(value, integer_types):
             return cls.pack_int(value)
         else:
-            raise TypeError('Invalid argument type %s.'
+            raise TypeError('Invalid argument type %s. '
                             'Only str or int expected' % type(value).__name__)
 
     @classmethod
@@ -196,11 +198,11 @@ class RequestDelete(Request):
     def __init__(self, space_no, key, return_tuple):
         flags = 1 if return_tuple else 0
 
-        if not isinstance(key, (int, tuple) + string_types):
+        if not isinstance(key, (int, basestring, tuple)):
             raise TypeError('Unsuppoted key type. Key must be instance '
                             'of int or basestring or tuple.')
 
-        if isinstance(key, (int, ) + string_types):
+        if isinstance(key, (int, basestring)):
             key = (key, )
 
         request_body = \
@@ -260,11 +262,11 @@ class RequestUpdate(Request):
     def __init__(self, space_no, key, op_list, return_tuple):
         flags = 1 if return_tuple else 0
 
-        if not isinstance(key, (int, tuple) + string_types):
+        if not isinstance(key, (int, basestring, tuple)):
             raise TypeError('Unsuppoted key type. Key must be instance '
                             'of int or basestring or tuple.')
 
-        if isinstance(key, (int, ) + string_types):
+        if isinstance(key, (int, basestring)):
             key = (key, )
 
         request_body = \

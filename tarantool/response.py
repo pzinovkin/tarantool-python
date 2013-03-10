@@ -2,14 +2,20 @@
 import struct
 import sys
 
-from tarantool.const import (struct_L, struct_Q, REQUEST_TYPE_SELECT,
-                             REQUEST_TYPE_INSERT, REQUEST_TYPE_DELETE,
-                             REQUEST_TYPE_UPDATE)
+from six import integer_types, PY3
+
+from tarantool.const import (
+    struct_L, struct_Q, REQUEST_TYPE_SELECT,
+    REQUEST_TYPE_INSERT, REQUEST_TYPE_DELETE, REQUEST_TYPE_UPDATE
+)
 from tarantool.error import DatabaseError
 
 
-if sys.version_info < (2, 6):
-    bytes = str
+if PY3:
+    unicode = str
+    to_ord = lambda a: a
+else:
+    to_ord = ord
 
 
 class field(bytes):
@@ -33,7 +39,7 @@ class field(bytes):
         if isinstance(value, (bytearray, bytes)):
             return super(field, cls).__new__(cls, value)
 
-        if isinstance(value, (int, long)):
+        if isinstance(value, integer_types):
             if 0 <= value <= 0xFFFFFFFF:
                 # 32 bit integer
                 return super(field, cls).__new__(cls, struct_L.pack(value))
@@ -112,19 +118,19 @@ class Response(list):
     @staticmethod
     def _unpack_int_base128(varint, offset):
         """Implement Perl unpack's 'w' option, aka base 128 decoding."""
-        res = ord(varint[offset])
-        if ord(varint[offset]) >= 0x80:
+        res = to_ord(varint[offset])
+        if to_ord(varint[offset]) >= 0x80:
             offset += 1
-            res = ((res - 0x80) << 7) + ord(varint[offset])
-            if ord(varint[offset]) >= 0x80:
+            res = ((res - 0x80) << 7) + to_ord(varint[offset])
+            if to_ord(varint[offset]) >= 0x80:
                 offset += 1
-                res = ((res - 0x80) << 7) + ord(varint[offset])
-                if ord(varint[offset]) >= 0x80:
+                res = ((res - 0x80) << 7) + to_ord(varint[offset])
+                if to_ord(varint[offset]) >= 0x80:
                     offset += 1
-                    res = ((res - 0x80) << 7) + ord(varint[offset])
-                    if ord(varint[offset]) >= 0x80:
+                    res = ((res - 0x80) << 7) + to_ord(varint[offset])
+                    if to_ord(varint[offset]) >= 0x80:
                         offset += 1
-                        res = ((res - 0x80) << 7) + ord(varint[offset])
+                        res = ((res - 0x80) << 7) + to_ord(varint[offset])
         return res, offset + 1
 
     def _unpack_tuple(self, buff):
@@ -144,7 +150,7 @@ class Response(list):
         # The first 4 bytes in the response body
         # is the <count> we have already read
         offset = 4
-        for i in xrange(cardinality):
+        for i in range(cardinality):
             field_size, offset = self._unpack_int_base128(buff, offset)
             field_data = struct.unpack_from('<%ds' % field_size, buff, offset)
             _tuple[i] = field(field_data[0])

@@ -142,7 +142,7 @@ class RequestUpdate(unittest.TestCase):
 
         # update t17 set k51 = 0x3333, k68 = 0x4444, k85 = 0x5555  where k0 = "ZZZZZZ"
         self.assertEqual(
-            bytes(tarantool.request.RequestUpdate(0x11, "ZZZZZZ", [(0x33, '=', 0x3333), (0x44, '=', 0x4444), (0x55, '=', 0x5555)], False)),
+            bytes(tarantool.request.RequestUpdate(0x11, b"ZZZZZZ", [(0x33, '=', 0x3333), (0x44, '=', 0x4444), (0x55, '=', 0x5555)], False)),
             binascii.unhexlify("130000003500000000000000110000000000000001000000065a5a5a5a5a5a03000000330000000004333300004400000000044444000055000000000455550000"),
             "Update: assign multiple integer values using a string key"
         )

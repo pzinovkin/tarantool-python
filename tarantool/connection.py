@@ -6,7 +6,8 @@ import struct
 import ctypes
 import socket
 import time
-from six import string_types
+
+from six import PY3
 
 from tarantool.response import Response
 from tarantool.request import (
@@ -19,7 +20,12 @@ from tarantool.const import (
     RETRY_MAX_ATTEMPTS
 )
 from tarantool.error import (
-    DatabaseError, NetworkError, RetryWarning, NetworkWarning, warn)
+    DatabaseError, NetworkError, RetryWarning, NetworkWarning, warn
+)
+
+
+if PY3:
+    basestring = (str, bytes)
 
 
 class Connection(object):
@@ -126,7 +132,7 @@ class Connection(object):
 
         # Repeat request in a loop if the server
         # returns completion_status == 1 (try again)
-        for attempt in xrange(RETRY_MAX_ATTEMPTS):
+        for attempt in range(RETRY_MAX_ATTEMPTS):
             try:
                 self._socket.sendall(bytes(request))
                 header, body = self._read_response()
@@ -242,7 +248,7 @@ class Connection(object):
 
         :rtype: `Response` instance
         """
-        assert isinstance(key, (int, tuple) + string_types)
+        assert isinstance(key, (int, basestring, tuple))
 
         request = RequestDelete(space_no, key, return_tuple)
         return self._send_request(request, field_types=field_types)
@@ -269,7 +275,7 @@ class Connection(object):
 
         :rtype: `Response` instance
         """
-        assert isinstance(key, (int, tuple) + string_types)
+        assert isinstance(key, (int, basestring, tuple))
 
         request = RequestUpdate(space_no, key, op_list, return_tuple)
         return self._send_request(request, field_types=field_types)
@@ -361,13 +367,13 @@ class Connection(object):
         index = kwargs.get("index", 0)
 
         # Perform smart type cheching (scalar/list of scalars/list of tuples)
-        if isinstance(values, (int, ) + string_types):  # scalar
+        if isinstance(values, (int, basestring)):  # scalar
             # This request is looking for one single record
             values = [(values, )]
         elif isinstance(values, (list, tuple, set, frozenset)):
             assert len(values) > 0
             # list of scalars
-            if isinstance(values[0], (int, ) + string_types):
+            if isinstance(values[0], (int, basestring)):
                 # This request is looking for several records
                 # using single-valued index
                 # Ex: select(space_no, index_no, [1, 2, 3])
