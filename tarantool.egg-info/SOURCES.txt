@@ -1,0 +1,14 @@
+MANIFEST.in
+README.rst
+tarantool/__init__.py
+tarantool/connection.py
+tarantool/const.py
+tarantool/error.py
+tarantool/request.py
+tarantool/response.py
+tarantool/space.py
+tarantool.egg-info/PKG-INFO
+tarantool.egg-info/SOURCES.txt
+tarantool.egg-info/dependency_links.txt
+tarantool.egg-info/requires.txt
+tarantool.egg-info/top_level.txt
