@@ -7,7 +7,7 @@ import ctypes
 import socket
 import time
 
-from six import PY3
+from tarantool._compat import bytes, basestring
 
 from tarantool.response import Response
 from tarantool.request import (
@@ -22,10 +22,6 @@ from tarantool.const import (
 from tarantool.error import (
     DatabaseError, NetworkError, RetryWarning, NetworkWarning, warn
 )
-
-
-if PY3:
-    basestring = (str, bytes)
 
 
 class Connection(object):
@@ -83,12 +79,9 @@ class Connection(object):
                 self._socket.close()
             self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self._socket.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1)
-            self._socket.connect((self.host, self.port))
-            # It is important to set socket timeout *after* connection.
-            # Otherwise the timeout exception will rised, even if the
-            # server does not listen
             self._socket.settimeout(self.socket_timeout)
-        except socket.error as e:
+            self._socket.connect((self.host, self.port))
+        except (socket.error, socket.timeout) as e:
             raise NetworkError(e)
 
     def _read_response(self):
@@ -137,7 +130,7 @@ class Connection(object):
                 self._socket.sendall(bytes(request))
                 header, body = self._read_response()
                 response = Response(header, body, field_types)
-            except socket.error as e:
+            except (socket.error, socket.timeout) as e:
                 raise NetworkError(e)
 
             if response.completion_status != 1:
@@ -248,7 +241,7 @@ class Connection(object):
 
         :rtype: `Response` instance
         """
-        assert isinstance(key, (int, basestring, tuple))
+        assert isinstance(key, (int, bytes, basestring, tuple))
 
         request = RequestDelete(space_no, key, return_tuple)
         return self._send_request(request, field_types=field_types)
@@ -275,7 +268,7 @@ class Connection(object):
 
         :rtype: `Response` instance
         """
-        assert isinstance(key, (int, basestring, tuple))
+        assert isinstance(key, (int, bytes, basestring, tuple))
 
         request = RequestUpdate(space_no, key, op_list, return_tuple)
         return self._send_request(request, field_types=field_types)
@@ -367,13 +360,13 @@ class Connection(object):
         index = kwargs.get("index", 0)
 
         # Perform smart type cheching (scalar/list of scalars/list of tuples)
-        if isinstance(values, (int, basestring)):  # scalar
+        if isinstance(values, (int, bytes, basestring)):  # scalar
             # This request is looking for one single record
             values = [(values, )]
         elif isinstance(values, (list, tuple, set, frozenset)):
             assert len(values) > 0
             # list of scalars
-            if isinstance(values[0], (int, basestring)):
+            if isinstance(values[0], (int, bytes, basestring)):
                 # This request is looking for several records
                 # using single-valued index
                 # Ex: select(space_no, index_no, [1, 2, 3])

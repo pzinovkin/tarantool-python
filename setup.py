@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
-import re
 import os.path
 
-from setuptools import setup, find_packages
+from setuptools import setup
 
 # Hack to prevent stupid "TypeError: 'NoneType' object is not callable" error
 # in multiprocessing/util.py _exit_function when running `python
@@ -14,14 +12,7 @@ except ImportError:
     pass
 
 
-def find_version(*path):
-    version_file = open(os.path.join(os.path.dirname(__file__), *path)).read()
-    version_match = re.search(r'^__version__ = [\'"]([^\'"]*)[\'"]',
-                              version_file, re.M)
-
-    if version_match:
-        return version_match.group(1)
-    raise RuntimeError('Unable to find version.')
+from tarantool import __version__
 
 
 # Extra commands for documentation management
@@ -56,11 +47,8 @@ except ImportError:
 
 setup(
     name='tarantool',
-    packages=find_packages(exclude=['tests', 'tests.tarantool']),
-    version=find_version('tarantool', '__init__.py'),
-    install_requires=[
-        'six==1.2.0',
-    ],
+    packages=['tarantool'],
+    version=__version__,
     tests_require=[
         'nose==1.2.1',
     ],

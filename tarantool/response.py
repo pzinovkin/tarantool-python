@@ -2,7 +2,7 @@
 import struct
 import sys
 
-from six import integer_types, PY3
+from tarantool._compat import PY3, long, unicode
 
 from tarantool.const import (
     struct_L, struct_Q, REQUEST_TYPE_SELECT,
@@ -12,7 +12,6 @@ from tarantool.error import DatabaseError
 
 
 if PY3:
-    unicode = str
     to_ord = lambda a: a
 else:
     to_ord = ord
@@ -39,7 +38,7 @@ class field(bytes):
         if isinstance(value, (bytearray, bytes)):
             return super(field, cls).__new__(cls, value)
 
-        if isinstance(value, integer_types):
+        if isinstance(value, (int, long)):
             if 0 <= value <= 0xFFFFFFFF:
                 # 32 bit integer
                 return super(field, cls).__new__(cls, struct_L.pack(value))

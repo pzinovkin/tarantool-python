@@ -1,10 +1,10 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 __version__ = '0.3.2'
 
 
 from tarantool.connection import Connection
-from tarantool.const import *
-from tarantool.error import *
+from tarantool.const import *  # noqa
+from tarantool.error import *  # noqa
 from tarantool.const import SOCKET_TIMEOUT
 
 

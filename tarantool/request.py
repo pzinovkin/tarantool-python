@@ -5,7 +5,7 @@ Request types definitions
 
 import struct
 
-from six import integer_types, PY3
+from tarantool._compat import bytes, basestring, long
 
 from tarantool.const import (
     struct_B, struct_BB, struct_BBB, struct_BBBB, struct_BBBBB, struct_BL,
@@ -13,9 +13,6 @@ from tarantool.const import (
     REQUEST_TYPE_SELECT, REQUEST_TYPE_INSERT, REQUEST_TYPE_DELETE,
     REQUEST_TYPE_UPDATE, REQUEST_TYPE_CALL, UPDATE_OPERATION_CODE
 )
-
-if PY3:
-    basestring = (str, bytes)
 
 
 class Request(object):
@@ -132,9 +129,9 @@ class Request(object):
         :return: packed value
         :rtype: bytes
         """
-        if isinstance(value, basestring):
+        if isinstance(value, (bytes, basestring)):
             return cls.pack_str(value)
-        elif isinstance(value, integer_types):
+        elif isinstance(value, (int, long)):
             return cls.pack_int(value)
         else:
             raise TypeError('Invalid argument type %s. '
@@ -198,11 +195,11 @@ class RequestDelete(Request):
     def __init__(self, space_no, key, return_tuple):
         flags = 1 if return_tuple else 0
 
-        if not isinstance(key, (int, basestring, tuple)):
+        if not isinstance(key, (int, bytes, basestring, tuple)):
             raise TypeError('Unsuppoted key type. Key must be instance '
-                            'of int or basestring or tuple.')
+                            'of int, bytes, str or tuple.')
 
-        if isinstance(key, (int, basestring)):
+        if isinstance(key, (int, bytes, basestring)):
             key = (key, )
 
         request_body = \
@@ -262,11 +259,11 @@ class RequestUpdate(Request):
     def __init__(self, space_no, key, op_list, return_tuple):
         flags = 1 if return_tuple else 0
 
-        if not isinstance(key, (int, basestring, tuple)):
+        if not isinstance(key, (int, bytes, basestring, tuple)):
             raise TypeError('Unsuppoted key type. Key must be instance '
-                            'of int or basestring or tuple.')
+                            'of int, bytes, str or tuple.')
 
-        if isinstance(key, (int, basestring)):
+        if isinstance(key, (int, bytes, basestring)):
             key = (key, )
 
         request_body = \
