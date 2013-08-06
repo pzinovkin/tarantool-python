@@ -46,7 +46,7 @@ except ImportError:
 
 
 setup(
-    name='tarantool',
+    name='mailru-tarantool',
     packages=['tarantool'],
     version=__version__,
     tests_require=[
