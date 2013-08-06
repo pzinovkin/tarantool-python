@@ -50,7 +50,7 @@ setup(
     packages=['tarantool'],
     version=__version__,
     tests_require=[
-        'nose==1.2.1',
+        'nose==1.3.0',
     ],
     test_suite='nose.collector',
     platforms=['all'],
